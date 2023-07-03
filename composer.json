@@ -19,6 +19,8 @@
         "drupal/core-composer-scaffold": "^10.1",
         "drupal/core-project-message": "^10.1",
         "drupal/core-recommended": "^10.1",
+        "drupal/restui": "^1.21",
+        "drupal/simple_oauth": "^5.2",
         "drush/drush": "^12.1"
     },
     "conflict": {
