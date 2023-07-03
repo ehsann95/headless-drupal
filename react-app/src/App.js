@@ -5,18 +5,32 @@ import Home from "./components/Home";
 import AboutPage from "./components/AboutPage";
 import Footer from "./components/Footer";
 import Articles from "./components/Articles";
+import Register from "./components/Register";
+import Login from "./components/Login";
+import { useState } from "react";
+import Logout from "./components/Logout";
 
 function App() {
+  const [username, setUsername] = useState(localStorage.getItem("username"));
   return (
     <BrowserRouter>
       <div className="container">
-        <Header />
+        <Header username={username} />
         <Slider />
 
         <Routes>
           <Route path="/" element={<Home />} />
           <Route path="/about" element={<AboutPage />} />
           <Route path="/articles" element={<Articles />} />
+          <Route path="/user/register" element={<Register />} />
+          <Route
+            path="/user/login"
+            element={<Login setUsername={setUsername} />}
+          />
+          <Route
+            path="/user/logout"
+            element={<Logout setUsername={setUsername} />}
+          />
         </Routes>
 
         <Footer />

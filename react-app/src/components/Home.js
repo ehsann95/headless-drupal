@@ -9,18 +9,18 @@ function Home() {
           <Card.Body>
             <Card.Title>Decupled Drupal</Card.Title>
             <Card.Text>
-              Thanks to REST web services in Drupal 8, we can build fully
-              decoupled applications. What is the meaning of the decoupled in
-              this context you may ask? Well, decoupled refers to a separation
-              between the back-end and front-end. In this sense Drupal 8 is used
-              as a back-end to store your content and provide API to your
-              front-end applications. This means that you can connect your
-              website, mobile application and anything you want to a single
+              Thanks to JSON API and REST web services in Drupal, we can build
+              fully decoupled applications. What is the meaning of the decoupled
+              in this context you may ask? Well, decoupled refers to a
+              separation between the back-end and front-end. In this sense
+              Drupal is used as a back-end to store your content and provide API
+              to your front-end applications. This means that you can connect
+              your website, mobile application and anything you want to a single
               back-end.
             </Card.Text>
             <Card.Text>
               The front-end for this website is built with React JS and
-              Bootstrap 4. To achieve single application feel, I used newest
+              Bootstrap 5. To achieve single application feel, I used newest
               version of React Router and this means that you don't have to
               refresh pages. To see why is decoupled Drupal a good thing visit
               the following article:{" "}
@@ -49,7 +49,7 @@ function Home() {
                 User info fetching
               </li>
               <li className="list-group-item list-group-item-warning">
-                Contact form submission
+                Create article
               </li>
             </ul>
           </Card.Body>
