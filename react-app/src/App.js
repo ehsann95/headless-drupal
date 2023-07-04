@@ -9,6 +9,8 @@ import Register from "./components/Register";
 import Login from "./components/Login";
 import { useState } from "react";
 import Logout from "./components/Logout";
+import CreateArticle from "./components/CreateArticle";
+import EditArticle from "./components/EditArticle";
 
 function App() {
   const [username, setUsername] = useState(localStorage.getItem("username"));
@@ -22,6 +24,8 @@ function App() {
           <Route path="/" element={<Home />} />
           <Route path="/about" element={<AboutPage />} />
           <Route path="/articles" element={<Articles />} />
+          <Route path="/articles/new" element={<CreateArticle />} />
+          <Route path="/articles/edit/:id" element={<EditArticle />} />
           <Route path="/user/register" element={<Register />} />
           <Route
             path="/user/login"
