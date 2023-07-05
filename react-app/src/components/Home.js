@@ -51,6 +51,12 @@ function Home() {
               <li className="list-group-item list-group-item-warning">
                 Create article
               </li>
+              <li className="list-group-item list-group-item-success">
+                Edit article
+              </li>
+              <li className="list-group-item list-group-item-info">
+                Delete article
+              </li>
             </ul>
           </Card.Body>
         </Card>

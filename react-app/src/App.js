@@ -11,6 +11,7 @@ import { useState } from "react";
 import Logout from "./components/Logout";
 import CreateArticle from "./components/CreateArticle";
 import EditArticle from "./components/EditArticle";
+import Profile from "./components/Profile";
 
 function App() {
   const [username, setUsername] = useState(localStorage.getItem("username"));
@@ -35,6 +36,7 @@ function App() {
             path="/user/logout"
             element={<Logout setUsername={setUsername} />}
           />
+          <Route path="/user/profile" element={<Profile />} />
         </Routes>
 
         <Footer />
