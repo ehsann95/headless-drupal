@@ -1,20 +1,21 @@
 import { BrowserRouter, Route, Routes } from "react-router-dom";
-import Header from "./components/Header";
-import Slider from "./components/Slider";
-import Home from "./components/Home";
-import AboutPage from "./components/AboutPage";
-import Footer from "./components/Footer";
-import Articles from "./components/Articles";
-import Register from "./components/Register";
-import Login from "./components/Login";
+import Header from "./components/organisms/Header";
+import Slider from "./components/organisms/Slider";
+import Home from "./components/pages/Home";
+import AboutPage from "./components/pages/AboutPage";
+import Footer from "./components/organisms/Footer";
+import Articles from "./components/pages/Articles";
+import Register from "./components/pages/Register";
+import Login from "./components/pages/Login";
 import { useState } from "react";
-import Logout from "./components/Logout";
-import CreateArticle from "./components/CreateArticle";
-import EditArticle from "./components/EditArticle";
-import Profile from "./components/Profile";
+import Logout from "./components/organisms/Logout";
+import CreateArticle from "./components/pages/CreateArticle";
+import EditArticle from "./components/pages/EditArticle";
+import Profile from "./components/pages/Profile";
 
 function App() {
   const [username, setUsername] = useState(localStorage.getItem("username"));
+
   return (
     <BrowserRouter>
       <div className="container">
@@ -38,7 +39,6 @@ function App() {
           />
           <Route path="/user/profile" element={<Profile />} />
         </Routes>
-
         <Footer />
       </div>
     </BrowserRouter>

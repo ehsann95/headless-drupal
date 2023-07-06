@@ -2,7 +2,6 @@ import React, { useEffect, useState } from "react";
 import Card from "react-bootstrap/Card";
 import axios from "axios";
 import { Link } from "react-router-dom";
-import { BASE_URL } from "../utils/config";
 
 function Articles() {
   const [articles, setArticles] = useState([]);
@@ -14,7 +13,9 @@ function Articles() {
 
   const fetchArticles = async () => {
     try {
-      const result = await axios.get(`${BASE_URL}jsonapi/node/article`);
+      const result = await axios.get(
+        `${process.env.REACT_APP_BASE_URL}jsonapi/node/article`
+      );
       const data = await result.data.data;
       console.log(data);
       setArticles(data);

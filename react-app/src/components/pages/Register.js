@@ -1,8 +1,8 @@
 import React, { useState } from "react";
 import axios from "axios";
-import { BASE_URL } from "../utils/config";
-
 import { NavLink, Navigate } from "react-router-dom";
+import Input from "../atoms/Input";
+import Button from "react-bootstrap/esm/Button";
 
 function Register() {
   const defaultValues = {
@@ -28,11 +28,14 @@ function Register() {
     }
 
     try {
-      const result = await axios.post(`${BASE_URL}user/register?_format=json`, {
-        name: [{ value: form.name }],
-        mail: [{ value: form.email }],
-        pass: [{ value: form.password }],
-      });
+      const result = await axios.post(
+        `${process.env.REACT_APP_BASE_URL}user/register?_format=json`,
+        {
+          name: [{ value: form.name }],
+          mail: [{ value: form.email }],
+          pass: [{ value: form.password }],
+        }
+      );
       setSuccess(true);
       console.log(result);
     } catch (err) {
@@ -51,52 +54,45 @@ function Register() {
             onSubmit={handleSubmit}
           >
             <div className="form-group mb-2">
-              <input
+              <Input
                 name="name"
-                value={form.name}
-                onChange={handleChange}
-                required
                 type="text"
-                className="form-control"
+                value={form.name}
                 placeholder="Enter username"
+                handleChange={handleChange}
               />
             </div>
             <div className="form-group mb-2">
-              <input
+              <Input
                 name="email"
-                value={form.email}
-                onChange={handleChange}
-                required
                 type="email"
-                className="form-control"
+                value={form.email}
                 placeholder="Enter email"
+                handleChange={handleChange}
               />
             </div>
             <div className="form-group mb-2">
-              <input
+              <Input
                 name="password"
-                value={form.password}
-                onChange={handleChange}
-                required
                 type="password"
-                className="form-control"
+                value={form.password}
                 placeholder="Enter password"
+                handleChange={handleChange}
               />
             </div>
             <div className="form-group mb-2">
-              <input
+              <Input
                 name="confirmPassword"
-                value={form.confirmPassword}
-                onChange={handleChange}
-                required
                 type="password"
-                className="form-control"
+                value={form.confirmPassword}
                 placeholder="Enter password again"
+                handleChange={handleChange}
               />
             </div>
-            <button type="submit" className="btn btn-primary">
-              Register
-            </button>
+            <Button variant="success" type="submit">
+              REGISTER
+            </Button>
+
             <div className="form-group messages">
               {/* <p className="success">{success}</p> */}
               <p className="error">{error}</p>

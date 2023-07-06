@@ -1,8 +1,9 @@
 import React, { useEffect, useState } from "react";
 import axios from "axios";
 import { Link, useParams } from "react-router-dom";
-import { BASE_URL } from "../utils/config";
-import DeleteArticle from "./DeleteArticle";
+import DeleteArticle from "../organisms/DeleteArticle";
+import Button from "react-bootstrap/Button";
+import Input from "../atoms/Input";
 
 function EditArticle() {
   const { id } = useParams();
@@ -33,7 +34,9 @@ function EditArticle() {
     }
 
     try {
-      const res = await axios.get(`${BASE_URL}jsonapi/node/article/${id}`);
+      const res = await axios.get(
+        `${process.env.REACT_APP_BASE_URL}jsonapi/node/article/${id}`
+      );
       const data = res.data.data?.attributes;
       let values = {
         title: data.title,
@@ -54,7 +57,7 @@ function EditArticle() {
     event.preventDefault();
     setSubmitting(true);
 
-    const fetchUrl = `${BASE_URL}jsonapi/node/article/${id}`;
+    const fetchUrl = `${process.env.REACT_APP_BASE_URL}jsonapi/node/article/${id}`;
 
     let body = {
       data: {
@@ -125,14 +128,13 @@ function EditArticle() {
             onSubmit={handleSubmit}
           >
             <div className="form-group mb-2">
-              <input
+              <Input
                 name="title"
                 type="text"
                 value={values.title}
                 placeholder="Title"
-                onChange={handleInputChange}
+                handleChange={handleInputChange}
                 required
-                className="form-control"
               />
             </div>
             <div className="form-group mb-2">
@@ -147,9 +149,9 @@ function EditArticle() {
               />
             </div>
             <div className="form-group mb-2">
-              <button type="submit" className="btn btn-success">
+              <Button type="submit" variant="primary">
                 Update Article
-              </button>
+              </Button>
             </div>
           </form>
           <div className="mt-4 fs-5 font-monospace">

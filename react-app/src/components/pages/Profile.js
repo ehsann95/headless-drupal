@@ -1,5 +1,4 @@
 import React, { useEffect, useState } from "react";
-import { BASE_URL } from "../utils/config";
 import axios from "axios";
 
 function Profile() {
@@ -15,7 +14,7 @@ function Profile() {
 
     try {
       const res = await axios.get(
-        `${BASE_URL}jsonapi/user/user?filter[uid]=${userId}`,
+        `${process.env.REACT_APP_BASE_URL}jsonapi/user/user?filter[uid]=${userId}`,
         {
           headers: {
             Authorization: `Bearer ${token}`,

@@ -1,7 +1,6 @@
 import React, { useState } from "react";
 import Button from "react-bootstrap/Button";
 import Modal from "react-bootstrap/Modal";
-import { BASE_URL } from "../utils/config";
 import axios from "axios";
 import { useNavigate } from "react-router-dom";
 
@@ -19,7 +18,7 @@ function DeleteArticle({ id, title }) {
 
   const handleDelete = async () => {
     let token = localStorage.getItem("access_token");
-    const fetchUrl = `${BASE_URL}jsonapi/node/article/${id}`;
+    const fetchUrl = `${process.env.REACT_APP_BASE_URL}jsonapi/node/article/${id}`;
     const headers = {
       Authorization: `Bearer ${token}`,
       credentials: "same-origin",

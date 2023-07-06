@@ -1,14 +1,15 @@
 import React, { useEffect, useState } from "react";
 import Card from "react-bootstrap/Card";
 import axios from "axios";
-import { BASE_URL } from "../utils/config";
 
 function AboutPage() {
   const [page, setPage] = useState({});
 
   const fetchPage = async () => {
     try {
-      const result = await axios.get(`${BASE_URL}jsonapi/node/page`);
+      const result = await axios.get(
+        `${process.env.REACT_APP_BASE_URL}jsonapi/node/page`
+      );
       const data = await result.data.data[0];
       setPage(data);
       console.log(data);

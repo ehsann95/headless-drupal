@@ -1,7 +1,8 @@
 import React, { useState } from "react";
 import axios from "axios";
 import { Link } from "react-router-dom";
-import { BASE_URL } from "../utils/config";
+import Button from "react-bootstrap/esm/Button";
+import Input from "../atoms/Input";
 
 function CreateArticle() {
   const defaultValues = {
@@ -28,7 +29,7 @@ function CreateArticle() {
     event.preventDefault();
     setSubmitting(true);
 
-    const fetchUrl = `${BASE_URL}jsonapi/node/article`;
+    const fetchUrl = `${process.env.REACT_APP_BASE_URL}jsonapi/node/article`;
 
     let body = {
       data: {
@@ -94,14 +95,13 @@ function CreateArticle() {
           onSubmit={handleSubmit}
         >
           <div className="form-group mb-2">
-            <input
+            <Input
               name="title"
               type="text"
               value={values.title}
               placeholder="Title"
-              onChange={handleInputChange}
+              handleChange={handleInputChange}
               required
-              className="form-control"
             />
           </div>
           <div className="form-group mb-2">
@@ -116,9 +116,7 @@ function CreateArticle() {
             />
           </div>
           <div className="form-group mb-2">
-            <button type="submit" className="btn btn-primary">
-              Add new Article
-            </button>
+            <Button type="submit">Add new Article</Button>
           </div>
         </form>
         <div className="mt-4 fs-5 font-monospace">

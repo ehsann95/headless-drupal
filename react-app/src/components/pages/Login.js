@@ -1,7 +1,8 @@
 import React, { useState } from "react";
 import { NavLink, Navigate } from "react-router-dom";
-import { BASE_URL } from "../utils/config";
 import axios from "axios";
+import Input from "../atoms/Input";
+import Button from "react-bootstrap/esm/Button";
 
 function Login({ setUsername }) {
   const defaultFormState = { name: "", password: "" };
@@ -17,10 +18,13 @@ function Login({ setUsername }) {
     e.preventDefault();
 
     try {
-      const result = await axios.post(`${BASE_URL}user/login?_format=json`, {
-        name: form.name,
-        pass: form.password,
-      });
+      const result = await axios.post(
+        `${process.env.REACT_APP_BASE_URL}user/login?_format=json`,
+        {
+          name: form.name,
+          pass: form.password,
+        }
+      );
       const data = await result.data;
       localStorage.setItem("username", data.current_user.name);
       localStorage.setItem("uid", data.current_user.uid);
@@ -49,7 +53,7 @@ function Login({ setUsername }) {
       formData.append("password", form.password);
 
       const result = await axios.post(
-        `${BASE_URL}oauth/token`,
+        `${process.env.REACT_APP_BASE_URL}oauth/token`,
         formData.toString(),
         {
           headers: {
@@ -75,30 +79,25 @@ function Login({ setUsername }) {
             onSubmit={handleSubmit}
           >
             <div className="form-group">
-              <input
+              <Input
                 name="name"
-                value={form.name}
-                onChange={handleChange}
-                required
                 type="text"
-                className="form-control"
+                value={form.name}
                 placeholder="Enter username"
+                handleChange={handleChange}
               />
             </div>
             <div className="form-group top-buffer mb-2">
-              <input
+              <Input
                 name="password"
-                value={form.password}
-                onChange={handleChange}
-                required
                 type="password"
-                className="form-control"
+                value={form.password}
                 placeholder="Enter password"
+                handleChange={handleChange}
               />
             </div>
-            <button type="submit" className="btn btn-primary">
-              Login
-            </button>
+            <Button type="submit">LOGIN</Button>
+
             <div className="form-group messages">
               <p className="success">{success && "Login success"}</p>
               <p className="error">{errorStatus}</p>
