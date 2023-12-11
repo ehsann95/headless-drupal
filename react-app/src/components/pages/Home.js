@@ -2,6 +2,44 @@ import React from "react";
 import Card from "react-bootstrap/Card";
 
 function Home() {
+  const features = [
+    {
+      title: "Articles fetching",
+      class: "info",
+    },
+    {
+      title: "Basic page fetching",
+      class: "success",
+    },
+    {
+      title: "User registration",
+      class: "danger",
+    },
+    {
+      title: "User login",
+      class: "info",
+    },
+    {
+      title: "User logout",
+      class: "success",
+    },
+    {
+      title: "User info fetching",
+      class: "danger",
+    },
+    {
+      title: "Create article",
+      class: "info",
+    },
+    {
+      title: "Edit article",
+      class: "success",
+    },
+    {
+      title: "Delete article",
+      class: "danger",
+    },
+  ];
   return (
     <div className="row top-buffer">
       <div className="col">
@@ -30,33 +68,16 @@ function Home() {
               . For now, I implemented the following things:
             </Card.Text>
             <ul className="list-group">
-              <li className="list-group-item list-group-item-success">
-                Articles fetching
-              </li>
-              <li className="list-group-item list-group-item-info">
-                Basic page fetching
-              </li>
-              <li className="list-group-item list-group-item-danger">
-                User registration
-              </li>
-              <li className="list-group-item list-group-item-success">
-                User login
-              </li>
-              <li className="list-group-item list-group-item-info">
-                User logout
-              </li>
-              <li className="list-group-item list-group-item-danger">
-                User info fetching
-              </li>
-              <li className="list-group-item list-group-item-warning">
-                Create article
-              </li>
-              <li className="list-group-item list-group-item-success">
-                Edit article
-              </li>
-              <li className="list-group-item list-group-item-info">
-                Delete article
-              </li>
+              {features.map((item) => {
+                return (
+                  <li
+                    key={item.title}
+                    className={`list-group-item list-group-item-${item.class}`}
+                  >
+                    {item.title}
+                  </li>
+                );
+              })}
             </ul>
           </Card.Body>
         </Card>

@@ -59,7 +59,7 @@ function Header({ username }) {
       return (
         <>
           {notLoggedInLinks.map((link) => (
-            <NavDropdown.Item>
+            <NavDropdown.Item key={link.name}>
               <NavLink className="dropdown-item" to={link.path}>
                 {link.name}
               </NavLink>
@@ -77,7 +77,7 @@ function Header({ username }) {
         <Navbar.Collapse id="basic-navbar-nav">
           <Nav className="ms-auto">
             {menuLinks.map((link) => (
-              <Nav.Item>
+              <Nav.Item key={link.name}>
                 <NavLink to={link.path} className="nav-link">
                   {link.name}
                 </NavLink>
