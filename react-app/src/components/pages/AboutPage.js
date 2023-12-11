@@ -12,7 +12,6 @@ function AboutPage() {
       );
       const data = await result.data.data[0];
       setPage(data);
-      console.log(data);
     } catch (error) {
       console.log("Error fetching About page", error.response.data);
     }

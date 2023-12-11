@@ -22,6 +22,8 @@ local.blt.yml
 /web/sites/*/private
 /web/sites/*/files-public
 /web/sites/*/files-private
+/web/sites/default/files
+
 
 /files-private/default/*/
 

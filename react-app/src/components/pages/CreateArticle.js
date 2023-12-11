@@ -56,7 +56,6 @@ function CreateArticle() {
       const res = await axios.post(fetchUrl, body, {
         headers: headers,
       });
-      console.log(res);
       const data = res.data;
       setSubmitting(false);
       setValues(defaultValues);

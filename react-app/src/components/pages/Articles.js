@@ -17,7 +17,7 @@ function Articles() {
         `${process.env.REACT_APP_BASE_URL}jsonapi/node/article`
       );
       const data = await result.data.data;
-      console.log(data);
+
       setArticles(data);
     } catch (error) {
       setError(true);

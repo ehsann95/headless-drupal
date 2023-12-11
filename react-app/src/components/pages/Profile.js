@@ -22,7 +22,6 @@ function Profile() {
         }
       );
       const data = res.data.data[0];
-      console.log(data);
       setUser({
         username: data.attributes.name,
         email: data.attributes.mail,
