@@ -1,23 +1,45 @@
 import React, { useEffect, useState } from "react";
 import axios from "axios";
+import { userLogin } from "../../utils/auth";
 
 function Profile() {
   const [user, setUser] = useState({ name: "", email: "" });
+  let refToken = "";
+  const token = JSON.parse(localStorage.getItem("drupal-oauth-token"));
+  if (token) {
+    refToken = token.refresh_token;
+  }
 
+  // auth.isLoggedIn();
   useEffect(() => {
+    const refreshAccessToken = async () => {
+      try {
+        // Call the refreshToken function from the userLogin module
+        const auth = userLogin();
+        await auth.refreshToken(refToken); // Pass the actual refresh token
+        // If the refresh token is successful, you can perform additional actions here
+      } catch (error) {
+        // Handle refresh token errors
+        console.error("Refresh token failed:", error.message);
+      }
+    };
+
+    // Call the refreshAccessToken function when the component mounts
+    refreshAccessToken();
     getCurrentUser();
   }, []);
 
   const getCurrentUser = async () => {
-    const userId = localStorage.getItem("uid");
-    const token = localStorage.getItem("access_token");
+    const username = localStorage.getItem("username");
+    const token = JSON.parse(localStorage.getItem("drupal-oauth-token"));
+    const access_token = token?.access_token;
 
     try {
       const res = await axios.get(
-        `${process.env.REACT_APP_BASE_URL}jsonapi/user/user?filter[uid]=${userId}`,
+        `${process.env.REACT_APP_BASE_URL}jsonapi/user/user?filter[name]=${username}`,
         {
           headers: {
-            Authorization: `Bearer ${token}`,
+            Authorization: `Bearer ${access_token}`,
           },
         }
       );

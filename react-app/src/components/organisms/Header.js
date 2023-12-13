@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useEffect, useState } from "react";
 import Container from "react-bootstrap/Container";
 import Nav from "react-bootstrap/Nav";
 import Navbar from "react-bootstrap/Navbar";
@@ -42,13 +42,12 @@ function Header({ username }) {
   ];
 
   const userLinksDropdown = () => {
-    const loggedIn = localStorage.getItem("auth");
-    if (loggedIn) {
+    if (username) {
       return (
         <>
           {loggedInLinks.map((link) => (
-            <NavDropdown.Item>
-              <NavLink className="dropdown-item" to={link.path}>
+            <NavDropdown.Item key={link.name}>
+              <NavLink className="dropdown-item" to={link.path} key={link.name}>
                 {link.name}
               </NavLink>
             </NavDropdown.Item>
@@ -60,7 +59,7 @@ function Header({ username }) {
         <>
           {notLoggedInLinks.map((link) => (
             <NavDropdown.Item key={link.name}>
-              <NavLink className="dropdown-item" to={link.path}>
+              <NavLink className="dropdown-item" to={link.path} key={link.name}>
                 {link.name}
               </NavLink>
             </NavDropdown.Item>

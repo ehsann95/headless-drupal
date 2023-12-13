@@ -73,10 +73,12 @@ function EditArticle() {
       },
     };
 
-    let token = localStorage.getItem("access_token");
+    const { access_token } = JSON.parse(
+      localStorage.getItem("druapl-oauth-token")
+    );
 
     const headers = {
-      Authorization: `Bearer ${token}`,
+      Authorization: `Bearer ${access_token}`,
       Accept: "application/vnd.api+json",
       "Content-Type": "application/vnd.api+json",
     };
