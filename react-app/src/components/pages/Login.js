@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { NavLink, Navigate } from "react-router-dom";
 import axios from "axios";
 import Input from "../atoms/Input";
@@ -12,6 +12,18 @@ function Login({ setUsername }) {
   const [form, setForm] = useState(defaultFormState);
   const [success, setSuccess] = useState(false);
   const [errorStatus, setErrorStatus] = useState("");
+  const [isLoggedIn, setLoggedIn] = useState(false);
+
+  useEffect(() => {
+    auth
+      .isLoggedIn()
+      .then((res) => {
+        setLoggedIn(true);
+      })
+      .catch((error) => {
+        setLoggedIn(false);
+      });
+  }, []);
 
   const handleChange = (e) => {
     setForm({ ...form, [e.target.name]: e.target.value });
@@ -20,26 +32,17 @@ function Login({ setUsername }) {
   const handleSubmit = async (e) => {
     e.preventDefault();
 
-    try {
-      const result = await axios.post(
-        `${process.env.REACT_APP_BASE_URL}user/login?_format=json`,
-        {
-          name: form.name,
-          pass: form.password,
-        }
-      );
-      const data = await result.data;
-      localStorage.setItem("username", data.current_user.name);
-      setSuccess(true);
-      setUsername(data.current_user.name);
-
-      auth.login(form.name, form.password);
-    } catch (error) {
-      setErrorStatus(error.response?.data?.message);
-      console.log("Error", error);
-    }
+    auth
+      .login(form.name, form.password)
+      .then(() => {
+        setSuccess(true);
+        setUsername(localStorage.getItem("username"));
+      })
+      .catch((error) => {
+        console.log(error);
+        setErrorStatus("Error Logging In");
+      });
   };
-
   return (
     <>
       {success && <Navigate to="/" replace={true} />}

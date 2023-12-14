@@ -1,3 +1,5 @@
+import axios from "axios";
+
 const refreshPromises = [];
 
 export const userLogin = (config = {}) => {
@@ -36,6 +38,25 @@ export const userLogin = (config = {}) => {
         );
       }
 
+      // REST API Login to fetch user info
+      const restLogin = await axios.post(
+        `${process.env.REACT_APP_BASE_URL}user/login?_format=json`,
+        {
+          name: username,
+          pass: password,
+        }
+      );
+
+      const restData = await restLogin.data;
+      localStorage.setItem("username", restData.current_user.name);
+
+      if (restData.error) {
+        console.log("Error retreiving user Login details", restData);
+        return Promise.reject(
+          new Error(`Error retrieving User details: ${restData.error}`)
+        );
+      }
+
       return saveToken(data);
     } catch (error) {
       console.log("API got an Error", error);
@@ -61,15 +82,13 @@ export const userLogin = (config = {}) => {
       try {
         const oauth_token = await token();
         if (oauth_token) {
-          console.log("using token", oauth_token);
+          console.log("using token");
           options.headers.append(
             "Authorization",
             `Bearer ${oauth_token.access_token}`
           );
         }
       } catch (error) {
-        // Safe to swallow this error. Just means we don't have a logged in
-        // user.
         console.log(error);
       }
     }
@@ -78,7 +97,7 @@ export const userLogin = (config = {}) => {
   };
 
   const refreshToken = async (refresh_token) => {
-    console.log("getting refresh token");
+    console.log("getting refresh token", refreshPromises[refresh_token]);
     if (refreshPromises[refresh_token]) {
       return refreshPromises[refresh_token];
     }
@@ -90,7 +109,7 @@ export const userLogin = (config = {}) => {
     formData.append("client_secret", config.client_secret);
 
     return (refreshPromises[refresh_token] = fetch(
-      `${config.base}/oauth/token`,
+      `${config.base}oauth/token`,
       {
         method: "post",
         headers: new Headers({
@@ -99,7 +118,8 @@ export const userLogin = (config = {}) => {
         body: formData,
       }
     )
-      .then(function (response) {
+      .then((response) => {
+        console.log(response);
         return response.json();
       })
       .then((data) => {
