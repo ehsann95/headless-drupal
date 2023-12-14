@@ -74,7 +74,7 @@ function EditArticle() {
     };
 
     const { access_token } = JSON.parse(
-      localStorage.getItem("druapl-oauth-token")
+      localStorage.getItem("drupal-oauth-token")
     );
 
     const headers = {

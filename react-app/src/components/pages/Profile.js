@@ -18,6 +18,7 @@ function Profile() {
         const auth = userLogin();
         await auth.refreshToken(refToken); // Pass the actual refresh token
         // If the refresh token is successful, you can perform additional actions here
+        getCurrentUser();
       } catch (error) {
         // Handle refresh token errors
         console.error("Refresh token failed:", error.message);
@@ -25,7 +26,7 @@ function Profile() {
     };
 
     // Call the refreshAccessToken function when the component mounts
-    refreshAccessToken();
+    // refreshAccessToken();
     getCurrentUser();
   }, []);
 

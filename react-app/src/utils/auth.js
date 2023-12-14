@@ -1,9 +1,11 @@
+const refreshPromises = [];
+
 export const userLogin = (config = {}) => {
   const defaultConfig = {
     base: process.env.REACT_APP_BASE_URL,
     token_name: "drupal-oauth-token",
-    client_id: process.env.CLIENT_ID,
-    client_secret: process.env.CLIENT_SECRET,
+    client_id: process.env.REACT_APP_CLIENT_ID,
+    client_secret: process.env.REACT_APP_CLIENT_SECRET,
     scope: "consumer",
     expire_margin: 0,
   };
@@ -12,9 +14,8 @@ export const userLogin = (config = {}) => {
   const login = async (username, password) => {
     const formData = new FormData();
     formData.append("grant_type", "password");
-    formData.append("client_id", "simple_secret");
-    formData.append("client_secret", "simple_secret");
-    // formData.append("scope", config.scope);
+    formData.append("client_id", config.client_id);
+    formData.append("client_secret", config.client_secret);
     formData.append("username", username);
     formData.append("password", password);
 
@@ -55,40 +56,69 @@ export const userLogin = (config = {}) => {
     return Promise.resolve(true);
   };
 
+  const fetchWithAuthentication = async (url, options) => {
+    if (!options.headers.get("Authorization")) {
+      try {
+        const oauth_token = await token();
+        if (oauth_token) {
+          console.log("using token", oauth_token);
+          options.headers.append(
+            "Authorization",
+            `Bearer ${oauth_token.access_token}`
+          );
+        }
+      } catch (error) {
+        // Safe to swallow this error. Just means we don't have a logged in
+        // user.
+        console.log(error);
+      }
+    }
+
+    return fetch(`${config.base}${url}`, options);
+  };
+
   const refreshToken = async (refresh_token) => {
-    console.log("refresh");
+    console.log("getting refresh token");
+    if (refreshPromises[refresh_token]) {
+      return refreshPromises[refresh_token];
+    }
+
     const formData = new FormData();
     formData.append("grant_type", "refresh_token");
     formData.append("refresh_token", refresh_token);
-    formData.append("client_id", "simple_secret");
-    formData.append("client_secret", "simple_secret");
+    formData.append("client_id", config.client_id);
+    formData.append("client_secret", config.client_secret);
 
-    try {
-      const response = await fetch(`${config.base}oauth/token`, {
+    return (refreshPromises[refresh_token] = fetch(
+      `${config.base}/oauth/token`,
+      {
         method: "post",
         headers: new Headers({
           Accept: "application/json",
         }),
         body: formData,
-      });
-      const data = await response.json();
-      console.log(data);
-
-      if (data.error) {
-        console.log("Error retreiving refresh token", data);
-        window.history.pushState({}, "", "/user/login");
-        // return Promise.reject(`Error retrieving Refreshtoken: ${data.error}`);
-        return;
       }
+    )
+      .then(function (response) {
+        return response.json();
+      })
+      .then((data) => {
+        delete refreshPromises[refresh_token];
 
-      return saveToken(data);
-    } catch (error) {
-      console.log("API got an Error", error);
-      return Promise.reject(new Error(`API error: ${error}`));
-    }
+        if (data.error) {
+          console.log("Error refreshing token", data);
+          return false;
+        }
+        return saveToken(data);
+      })
+      .catch((err) => {
+        delete refreshPromises[refresh_token];
+        console.log("API got an error", err);
+        return Promise.reject(err);
+      }));
   };
 
-  const token = () => {
+  const token = async () => {
     const token =
       localStorage.getItem(config.token_name) !== null
         ? JSON.parse(localStorage.getItem(config.token_name))
@@ -96,25 +126,41 @@ export const userLogin = (config = {}) => {
 
     if (!token) {
       console.log("empty token. Please LogIn");
-      return false;
+      // return false;
+      return Promise.reject("empty token");
     }
 
     const { expires_at, refresh_token } = token;
     if (expires_at - config.expire_margin < Date.now() / 1000) {
       return refreshToken(refresh_token);
     }
-    return token;
+    // return token;
+    return Promise.resolve(token);
   };
 
-  const isLoggedIn = () => {
-    const oauth_token = token();
-    if (oauth_token) {
-      // return Promise.resolve(true);
-      return true;
+  const isLoggedIn = async () => {
+    try {
+      const oauth_token = await token();
+      if (oauth_token) {
+        return Promise.resolve(true);
+      }
+    } catch (error) {
+      return Promise.reject(error);
     }
 
-    console.log("Not logged In");
-    return false;
+    return Promise.reject(false);
+  };
+
+  const debug = () => {
+    const headers = new Headers({
+      Accept: "application/vnd.api+json",
+    });
+
+    fetchWithAuthentication("/oauth/debug?_format=json", { headers })
+      .then((response) => response.json())
+      .then((data) => {
+        console.log("debug", data);
+      });
   };
 
   return {
@@ -123,5 +169,7 @@ export const userLogin = (config = {}) => {
     isLoggedIn,
     token,
     refreshToken,
+    fetchWithAuthentication,
+    debug,
   };
 };
