@@ -1,14 +1,29 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { NavLink, Navigate } from "react-router-dom";
 import axios from "axios";
 import Input from "../atoms/Input";
 import Button from "react-bootstrap/esm/Button";
+import { userLogin } from "../../utils/auth";
+
+const auth = userLogin();
 
 function Login({ setUsername }) {
   const defaultFormState = { name: "", password: "" };
   const [form, setForm] = useState(defaultFormState);
   const [success, setSuccess] = useState(false);
   const [errorStatus, setErrorStatus] = useState("");
+  const [isLoggedIn, setLoggedIn] = useState(false);
+
+  useEffect(() => {
+    auth
+      .isLoggedIn()
+      .then((res) => {
+        setLoggedIn(true);
+      })
+      .catch((error) => {
+        setLoggedIn(false);
+      });
+  }, []);
 
   const handleChange = (e) => {
     setForm({ ...form, [e.target.name]: e.target.value });
@@ -17,58 +32,17 @@ function Login({ setUsername }) {
   const handleSubmit = async (e) => {
     e.preventDefault();
 
-    try {
-      const result = await axios.post(
-        `${process.env.REACT_APP_BASE_URL}user/login?_format=json`,
-        {
-          name: form.name,
-          pass: form.password,
-        }
-      );
-      const data = await result.data;
-      localStorage.setItem("username", data.current_user.name);
-      localStorage.setItem("uid", data.current_user.uid);
-      localStorage.setItem("csrf_token", data.csrf_token);
-      localStorage.setItem("logout_token", data.logout_token);
-      localStorage.setItem(
-        "auth",
-        window.btoa(form.name + ":" + form.password)
-      );
-      setSuccess(true);
-      setUsername(data.current_user.name);
-      await getOauthToken();
-    } catch (error) {
-      setErrorStatus(error.response?.data?.message);
-      console.log("Error", error);
-    }
+    auth
+      .login(form.name, form.password)
+      .then(() => {
+        setSuccess(true);
+        setUsername(localStorage.getItem("username"));
+      })
+      .catch((error) => {
+        console.log(error);
+        setErrorStatus("Error Logging In");
+      });
   };
-
-  const getOauthToken = async () => {
-    try {
-      const formData = new URLSearchParams();
-      formData.append("grant_type", "password");
-      formData.append("client_id", "simple_secret");
-      formData.append("client_secret", "simple_secret");
-      formData.append("username", form.name);
-      formData.append("password", form.password);
-
-      const result = await axios.post(
-        `${process.env.REACT_APP_BASE_URL}oauth/token`,
-        formData.toString(),
-        {
-          headers: {
-            "Content-Type": "application/x-www-form-urlencoded",
-          },
-        }
-      );
-      const data = await result.data;
-
-      localStorage.setItem("access_token", data.access_token);
-    } catch (error) {
-      console.log("Error", error);
-    }
-  };
-
   return (
     <>
       {success && <Navigate to="/" replace={true} />}

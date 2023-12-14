@@ -1,37 +1,54 @@
 import React, { useEffect, useState } from "react";
 import axios from "axios";
+import { userLogin } from "../../utils/auth";
+
+const auth = userLogin();
 
 function Profile() {
   const [user, setUser] = useState({ name: "", email: "" });
+  const [isLoggedIn, setLoggedIn] = useState(false);
 
   useEffect(() => {
-    getCurrentUser();
+    auth
+      .isLoggedIn()
+      .then((res) => {
+        console.log();
+        getCurrentUser();
+        setLoggedIn(true);
+      })
+      .catch((error) => {
+        console.log(error);
+        setLoggedIn(false);
+      });
   }, []);
 
-  const getCurrentUser = async () => {
-    const userId = localStorage.getItem("uid");
-    const token = localStorage.getItem("access_token");
+  const getCurrentUser = () => {
+    const username = localStorage.getItem("username");
+    const fetchUrl = `jsonapi/user/user?filter[name]=${username}`;
+    const fetchOptions = {
+      method: "GET",
+      headers: new Headers({}),
+    };
 
     try {
-      const res = await axios.get(
-        `${process.env.REACT_APP_BASE_URL}jsonapi/user/user?filter[uid]=${userId}`,
-        {
-          headers: {
-            Authorization: `Bearer ${token}`,
-          },
-        }
-      );
-      const data = res.data.data[0];
-      setUser({
-        username: data.attributes.name,
-        email: data.attributes.mail,
-      });
+      auth
+        .fetchWithAuthentication(fetchUrl, fetchOptions)
+        .then((response) => response.json())
+        .then((data) => {
+          setUser({
+            username: data.data[0].attributes.name,
+            email: data.data[0].attributes.mail,
+          });
+        });
     } catch (error) {
       console.log(error);
     }
   };
+
   return (
     <div className="row top-buffer">
+      {isLoggedIn && <h2>Welcome User</h2>}
+
       <div className="col-md-4 offset-md-4">
         <ul className="list-group">
           <li
