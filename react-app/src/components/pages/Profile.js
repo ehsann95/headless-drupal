@@ -12,7 +12,6 @@ function Profile() {
     auth
       .isLoggedIn()
       .then((res) => {
-        console.log();
         getCurrentUser();
         setLoggedIn(true);
       })
