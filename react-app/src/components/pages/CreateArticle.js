@@ -3,6 +3,9 @@ import axios from "axios";
 import { Link } from "react-router-dom";
 import Button from "react-bootstrap/esm/Button";
 import Input from "../atoms/Input";
+import { userLogin } from "../../utils/auth";
+
+const auth = userLogin();
 
 function CreateArticle() {
   const defaultValues = {
@@ -29,7 +32,7 @@ function CreateArticle() {
     event.preventDefault();
     setSubmitting(true);
 
-    const fetchUrl = `${process.env.REACT_APP_BASE_URL}jsonapi/node/article`;
+    const fetchUrl = `jsonapi/node/article`;
 
     let body = {
       data: {
@@ -44,34 +47,33 @@ function CreateArticle() {
       },
     };
 
-    // let token = localStorage.getItem("access_token");
-    const { access_token } = JSON.parse(
-      localStorage.getItem("drupal-oauth-token")
-    );
-
-    const headers = {
-      Authorization: `Bearer ${access_token}`,
-      Accept: "application/vnd.api+json",
-      "Content-Type": "application/vnd.api+json",
+    const fetchOptions = {
+      method: "POST",
+      headers: new Headers({
+        Accept: "application/vnd.api+json",
+        "Content-Type": "application/vnd.api+json",
+      }),
+      body: JSON.stringify(body),
     };
 
     try {
-      const res = await axios.post(fetchUrl, body, {
-        headers: headers,
-      });
-      const data = res.data;
-      setSubmitting(false);
-      setValues(defaultValues);
-      if (data.data.id) {
-        setResult({
-          success: true,
-          message: (
-            <div className="text-success">
-              {"Added"}: <em>{data.data.attributes.title}</em>
-            </div>
-          ),
+      auth
+        .fetchWithAuthentication(fetchUrl, fetchOptions)
+        .then((response) => response.json())
+        .then((data) => {
+          setSubmitting(false);
+          setValues(defaultValues);
+          if (data.data.id) {
+            setResult({
+              success: true,
+              message: (
+                <div className="text-success">
+                  {"Added"}: <em>{data.data.attributes.title}</em>
+                </div>
+              ),
+            });
+          }
         });
-      }
     } catch (error) {
       console.log("Error while contacting API", error);
       setResult({
