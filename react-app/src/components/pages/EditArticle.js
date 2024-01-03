@@ -4,6 +4,9 @@ import { Link, useParams } from "react-router-dom";
 import DeleteArticle from "../organisms/DeleteArticle";
 import Button from "react-bootstrap/Button";
 import Input from "../atoms/Input";
+import { userLogin } from "../../utils/auth";
+
+const auth = userLogin();
 
 function EditArticle() {
   const { id } = useParams();
@@ -57,7 +60,7 @@ function EditArticle() {
     event.preventDefault();
     setSubmitting(true);
 
-    const fetchUrl = `${process.env.REACT_APP_BASE_URL}jsonapi/node/article/${id}`;
+    const fetchUrl = `jsonapi/node/article/${id}`;
 
     let body = {
       data: {
@@ -73,33 +76,33 @@ function EditArticle() {
       },
     };
 
-    const { access_token } = JSON.parse(
-      localStorage.getItem("drupal-oauth-token")
-    );
-
-    const headers = {
-      Authorization: `Bearer ${access_token}`,
-      Accept: "application/vnd.api+json",
-      "Content-Type": "application/vnd.api+json",
+    const fetchOptions = {
+      method: "PATCH",
+      headers: new Headers({
+        Accept: "application/vnd.api+json",
+        "Content-Type": "application/vnd.api+json",
+      }),
+      body: JSON.stringify(body),
     };
 
     try {
-      const res = await axios.patch(fetchUrl, body, {
-        headers: headers,
-      });
-      const data = res.data;
-      setSubmitting(false);
-      // setValues(defaultValues);
-      if (data.data.id) {
-        setResult({
-          success: true,
-          message: (
-            <div className="text-success">
-              {"Updated"}: <em>{data.data.attributes.title}</em>
-            </div>
-          ),
+      auth
+        .fetchWithAuthentication(fetchUrl, fetchOptions)
+        .then((response) => response.json())
+        .then((data) => {
+          setSubmitting(false);
+
+          if (data.data.id) {
+            setResult({
+              success: true,
+              message: (
+                <div className="text-success">
+                  {"Updated"}: <em>{data.data.attributes.title}</em>
+                </div>
+              ),
+            });
+          }
         });
-      }
     } catch (error) {
       console.log("Error while contacting API", error);
       setResult({
