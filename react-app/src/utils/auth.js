@@ -4,16 +4,34 @@ const refreshPromises = [];
 
 export const userLogin = (config = {}) => {
   const defaultConfig = {
-    base: process.env.REACT_APP_BASE_URL,
     token_name: "drupal-oauth-token",
     client_id: process.env.REACT_APP_CLIENT_ID,
     client_secret: process.env.REACT_APP_CLIENT_SECRET,
-    scope: "consumer",
     expire_margin: 0,
   };
   config = { ...defaultConfig, ...config };
 
   const login = async (username, password) => {
+    try {
+      const tokenData = await getOAuthToken(username, password);
+      const restData = await axios.post(
+        `${process.env.REACT_APP_BASE_URL}user/login?_format=json`,
+        {
+          name: username,
+          pass: password,
+        }
+      );
+
+      localStorage.setItem("username", restData.data.current_user.name);
+
+      return saveToken(tokenData);
+    } catch (error) {
+      console.log("API got an Error", error);
+      return Promise.reject(new Error(`API error: ${error}`));
+    }
+  };
+
+  const getOAuthToken = async (username, password) => {
     const formData = new FormData();
     formData.append("grant_type", "password");
     formData.append("client_id", config.client_id);
@@ -22,42 +40,20 @@ export const userLogin = (config = {}) => {
     formData.append("password", password);
 
     try {
-      const response = await fetch(`${config.base}oauth/token`, {
-        method: "post",
-        headers: new Headers({
-          Accept: "application/json",
-        }),
-        body: formData,
-      });
-      const data = await response.json();
+      const response = await axios.post(
+        `${process.env.REACT_APP_BASE_URL}oauth/token`,
+        formData
+      );
+      const data = response.data;
 
       if (data.error) {
-        console.log("Error retreiving token", data);
+        console.log("Error retrieving token", data);
         return Promise.reject(
-          new Error(`Error retrieving Oauth token: ${data.error}`)
+          new Error(`Error retrieving OAuth token: ${data.error}`)
         );
       }
 
-      // REST API Login to fetch user info
-      const restLogin = await axios.post(
-        `${process.env.REACT_APP_BASE_URL}user/login?_format=json`,
-        {
-          name: username,
-          pass: password,
-        }
-      );
-
-      const restData = await restLogin.data;
-      localStorage.setItem("username", restData.current_user.name);
-
-      if (restData.error) {
-        console.log("Error retreiving user Login details", restData);
-        return Promise.reject(
-          new Error(`Error retrieving User details: ${restData.error}`)
-        );
-      }
-
-      return saveToken(data);
+      return data;
     } catch (error) {
       console.log("API got an Error", error);
       return Promise.reject(new Error(`API error: ${error}`));
@@ -65,8 +61,7 @@ export const userLogin = (config = {}) => {
   };
 
   const saveToken = (data) => {
-    let token = Object.assign({}, data);
-    token.date = Math.floor(Date.now() / 1000);
+    let token = { ...data, date: Math.floor(Date.now() / 1000) };
     token.expires_at = token.date + token.expires_in;
     localStorage.setItem(config.token_name, JSON.stringify(token));
     return token;
@@ -78,26 +73,10 @@ export const userLogin = (config = {}) => {
   };
 
   const fetchWithAuthentication = async (url, options) => {
-    if (!options.headers.get("Authorization")) {
-      try {
-        const oauth_token = await token();
-        if (oauth_token) {
-          console.log("using token");
-          options.headers.append(
-            "Authorization",
-            `Bearer ${oauth_token.access_token}`
-          );
-        }
-      } catch (error) {
-        console.log(error);
-      }
-    }
-
-    return fetch(`${config.base}${url}`, options);
+    return axiosInstance(url, options);
   };
 
   const refreshToken = async (refresh_token) => {
-    console.log("getting refresh token", refreshPromises[refresh_token]);
     if (refreshPromises[refresh_token]) {
       return refreshPromises[refresh_token];
     }
@@ -108,27 +87,17 @@ export const userLogin = (config = {}) => {
     formData.append("client_id", config.client_id);
     formData.append("client_secret", config.client_secret);
 
-    return (refreshPromises[refresh_token] = fetch(
-      `${config.base}oauth/token`,
-      {
-        method: "post",
-        headers: new Headers({
-          Accept: "application/json",
-        }),
-        body: formData,
-      }
-    )
+    return (refreshPromises[refresh_token] = axios
+      .post(`${process.env.REACT_APP_BASE_URL}oauth/token`, formData)
       .then((response) => {
-        console.log(response);
-        return response.json();
-      })
-      .then((data) => {
         delete refreshPromises[refresh_token];
 
+        const data = response.data;
         if (data.error) {
           console.log("Error refreshing token", data);
           return false;
         }
+        console.log("NEW TOKEN using refresh_token", data);
         return saveToken(data);
       })
       .catch((err) => {
@@ -146,7 +115,6 @@ export const userLogin = (config = {}) => {
 
     if (!token) {
       console.log("empty token. Please LogIn");
-      // return false;
       return Promise.reject("empty token");
     }
 
@@ -154,14 +122,14 @@ export const userLogin = (config = {}) => {
     if (expires_at - config.expire_margin < Date.now() / 1000) {
       return refreshToken(refresh_token);
     }
-    // return token;
+
     return Promise.resolve(token);
   };
 
   const isLoggedIn = async () => {
     try {
-      const oauth_token = await token();
-      if (oauth_token) {
+      const oauthToken = await token();
+      if (oauthToken) {
         return Promise.resolve(true);
       }
     } catch (error) {
@@ -172,12 +140,12 @@ export const userLogin = (config = {}) => {
   };
 
   const debug = () => {
-    const headers = new Headers({
+    const headers = {
       Accept: "application/vnd.api+json",
-    });
+    };
 
     fetchWithAuthentication("/oauth/debug?_format=json", { headers })
-      .then((response) => response.json())
+      .then((response) => response.data)
       .then((data) => {
         console.log("debug", data);
       });
@@ -193,3 +161,65 @@ export const userLogin = (config = {}) => {
     debug,
   };
 };
+
+const axiosInstance = axios.create({
+  baseURL: process.env.REACT_APP_BASE_URL,
+  headers: {
+    Accept: "application/vnd.api+json",
+    "Content-Type": "application/vnd.api+json",
+  },
+});
+
+// Request interceptor to attach the OAuth token to each request
+axiosInstance.interceptors.request.use(
+  async (config) => {
+    console.log("INTERCEPTOR request", config);
+    // const getToken = userLogin();
+    // const token = await getToken.token();
+    const token = JSON.parse(localStorage.getItem("drupal-oauth-token"));
+    if (token) {
+      config.headers.Authorization = `Bearer ${token.access_token}`;
+    }
+    return config;
+  },
+  (error) => {
+    console.log(error);
+    return Promise.reject(error);
+  }
+);
+
+// Response interceptor to handle token expiration and refresh
+axiosInstance.interceptors.response.use(
+  (response) => {
+    console.log("INTERCEPTOR response", response);
+
+    return response;
+  },
+  async (error) => {
+    console.log(error);
+    const originalRequest = error.config;
+
+    if (error?.response?.status === 401 && !originalRequest.sent) {
+      originalRequest.sent = true;
+
+      try {
+        const refreshToken = JSON.parse(
+          localStorage.getItem("drupal-oauth-token")
+        ).refresh_token;
+        const getToken = userLogin();
+        // const newToken = await getToken.token();
+        const newToken = await getToken.refreshToken(refreshToken);
+        console.log("NEW", newToken);
+        if (newToken) {
+          originalRequest.headers.Authorization = `Bearer ${newToken.access_token}`;
+          return axiosInstance(originalRequest);
+        }
+      } catch (refreshError) {
+        console.log("Error refreshing token", refreshError);
+        // Handle refresh error or redirect to login
+        return Promise.reject(refreshError);
+      }
+    }
+    return Promise.reject(error);
+  }
+);
