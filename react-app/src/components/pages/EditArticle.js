@@ -78,31 +78,28 @@ function EditArticle() {
 
     const fetchOptions = {
       method: "PATCH",
-      headers: new Headers({
-        Accept: "application/vnd.api+json",
-        "Content-Type": "application/vnd.api+json",
-      }),
-      body: JSON.stringify(body),
+      data: body,
     };
 
     try {
-      auth
-        .fetchWithAuthentication(fetchUrl, fetchOptions)
-        .then((response) => response.json())
-        .then((data) => {
-          setSubmitting(false);
+      const response = await auth.fetchWithAuthentication(
+        fetchUrl,
+        fetchOptions
+      );
+      const data = response.data;
 
-          if (data.data.id) {
-            setResult({
-              success: true,
-              message: (
-                <div className="text-success">
-                  {"Updated"}: <em>{data.data.attributes.title}</em>
-                </div>
-              ),
-            });
-          }
+      setSubmitting(false);
+
+      if (data.data.id) {
+        setResult({
+          success: true,
+          message: (
+            <div className="text-success">
+              {"Updated"}: <em>{data.data.attributes.title}</em>
+            </div>
+          ),
         });
+      }
     } catch (error) {
       console.log("Error while contacting API", error);
       setResult({
