@@ -21,26 +21,31 @@ function Profile() {
       });
   }, []);
 
-  const getCurrentUser = () => {
-    const username = localStorage.getItem("username");
-    const fetchUrl = `jsonapi/user/user?filter[name]=${username}`;
-    const fetchOptions = {
-      method: "GET",
-      headers: new Headers({}),
-    };
-
+  const getCurrentUser = async () => {
     try {
-      auth
-        .fetchWithAuthentication(fetchUrl, fetchOptions)
-        .then((response) => response.json())
-        .then((data) => {
-          setUser({
-            username: data.data[0].attributes.name,
-            email: data.data[0].attributes.mail,
-          });
-        });
+      const username = localStorage.getItem("username");
+
+      const fetchUrl = `jsonapi/user/user?filter[name]=${username}`;
+      const fetchOptions = {
+        method: "GET",
+        headers: {
+          Accept: "application/json",
+          "Content-Type": "application/json",
+        },
+      };
+
+      const response = await auth.fetchWithAuthentication(
+        fetchUrl,
+        fetchOptions
+      );
+      const data = response.data;
+
+      setUser({
+        username: data.data[0].attributes.name,
+        email: data.data[0].attributes.mail,
+      });
     } catch (error) {
-      console.log(error);
+      console.error("Error while getting current user", error);
     }
   };
 

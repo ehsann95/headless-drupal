@@ -34,7 +34,7 @@ function CreateArticle() {
 
     const fetchUrl = `jsonapi/node/article`;
 
-    let body = {
+    const body = {
       data: {
         type: "node--article",
         attributes: {
@@ -49,31 +49,29 @@ function CreateArticle() {
 
     const fetchOptions = {
       method: "POST",
-      headers: new Headers({
-        Accept: "application/vnd.api+json",
-        "Content-Type": "application/vnd.api+json",
-      }),
-      body: JSON.stringify(body),
+      data: body,
     };
 
     try {
-      auth
-        .fetchWithAuthentication(fetchUrl, fetchOptions)
-        .then((response) => response.json())
-        .then((data) => {
-          setSubmitting(false);
-          setValues(defaultValues);
-          if (data.data.id) {
-            setResult({
-              success: true,
-              message: (
-                <div className="text-success">
-                  {"Added"}: <em>{data.data.attributes.title}</em>
-                </div>
-              ),
-            });
-          }
+      const response = await auth.fetchWithAuthentication(
+        fetchUrl,
+        fetchOptions
+      );
+      const data = response.data;
+
+      setSubmitting(false);
+      setValues(defaultValues);
+
+      if (data.data.id) {
+        setResult({
+          success: true,
+          message: (
+            <div className="text-success">
+              {"Added"}: <em>{data.data.attributes.title}</em>
+            </div>
+          ),
         });
+      }
     } catch (error) {
       console.log("Error while contacting API", error);
       setResult({

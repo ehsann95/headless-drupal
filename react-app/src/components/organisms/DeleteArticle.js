@@ -25,29 +25,31 @@ function DeleteArticle({ id, title }) {
     const fetchUrl = `jsonapi/node/article/${id}`;
     const fetchOptions = {
       method: "DELETE",
-      headers: new Headers({}),
+      // headers: new Headers({}),
     };
 
     try {
-      auth.fetchWithAuthentication(fetchUrl, fetchOptions).then((response) => {
-        console.log(response);
-        if (!response.ok) {
-          handleClose();
-          setResult({
-            success: false,
-            error: true,
-            message: <p className="text-danger">Error deleting the article</p>,
-          });
-        }
+      const response = await auth.fetchWithAuthentication(
+        fetchUrl,
+        fetchOptions
+      );
 
+      if (response.staus !== 204) {
+        handleClose();
         setResult({
-          success: true,
-          error: false,
-          message: <p className="text-success">Article Deleted successfully</p>,
+          success: false,
+          error: true,
+          message: <p className="text-danger">Error deleting the article</p>,
         });
+      }
 
-        navigate("/articles");
+      setResult({
+        success: true,
+        error: false,
+        message: <p className="text-success">Article Deleted successfully</p>,
       });
+
+      navigate("/articles");
     } catch (error) {
       console.log("Error deleting the article", error);
     }
