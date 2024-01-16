@@ -69,6 +69,8 @@ export const userLogin = (config = {}) => {
 
   const logout = () => {
     localStorage.removeItem(config.token_name);
+    localStorage.removeItem("username");
+
     return Promise.resolve(true);
   };
 
@@ -103,6 +105,8 @@ export const userLogin = (config = {}) => {
       .catch((err) => {
         delete refreshPromises[refresh_token];
         console.log("API got an error", err);
+        // redirect to login
+        window.location.href = "/user/logout";
         return Promise.reject(err);
       }));
   };
@@ -114,7 +118,6 @@ export const userLogin = (config = {}) => {
         : false;
 
     if (!token) {
-      console.log("empty token. Please LogIn");
       return Promise.reject("empty token");
     }
 
@@ -173,9 +176,6 @@ const axiosInstance = axios.create({
 // Request interceptor to attach the OAuth token to each request
 axiosInstance.interceptors.request.use(
   async (config) => {
-    console.log("INTERCEPTOR request", config);
-    // const getToken = userLogin();
-    // const token = await getToken.token();
     const token = JSON.parse(localStorage.getItem("drupal-oauth-token"));
     if (token) {
       config.headers.Authorization = `Bearer ${token.access_token}`;
@@ -191,8 +191,6 @@ axiosInstance.interceptors.request.use(
 // Response interceptor to handle token expiration and refresh
 axiosInstance.interceptors.response.use(
   (response) => {
-    console.log("INTERCEPTOR response", response);
-
     return response;
   },
   async (error) => {
@@ -207,7 +205,6 @@ axiosInstance.interceptors.response.use(
           localStorage.getItem("drupal-oauth-token")
         ).refresh_token;
         const getToken = userLogin();
-        // const newToken = await getToken.token();
         const newToken = await getToken.refreshToken(refreshToken);
         console.log("NEW", newToken);
         if (newToken) {
@@ -216,7 +213,6 @@ axiosInstance.interceptors.response.use(
         }
       } catch (refreshError) {
         console.log("Error refreshing token", refreshError);
-        // Handle refresh error or redirect to login
         return Promise.reject(refreshError);
       }
     }
