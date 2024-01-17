@@ -38,6 +38,7 @@ function Register() {
       console.log(err);
     }
   };
+
   return (
     <>
       {success && <Navigate to="/user/login" replace={true} />}
@@ -54,14 +55,15 @@ function Register() {
                 name="name"
                 type="text"
                 placeholder="Enter username"
-                {...register("name", { required: true, maxLength: 5 })}
+                {...register("name", {
+                  required: "Username is required",
+                  maxLength: {
+                    value: 6,
+                    message: "Username cannot be more than 6 char long",
+                  },
+                })}
               />
-              {errors.name?.type === "maxLength" && (
-                <p className="text-danger">Name should be 5 letters long</p>
-              )}
-              {errors.name?.type === "required" && (
-                <p className="text-danger">This field is required</p>
-              )}
+              <p className="text-danger">{errors.name?.message}</p>
             </div>
             <div className="form-group mb-2">
               <input
@@ -69,11 +71,9 @@ function Register() {
                 name="email"
                 type="email"
                 placeholder="Enter email"
-                {...register("email", { required: true })}
+                {...register("email", { required: "This Email is required." })}
               />
-              {errors.email?.type === "required" && (
-                <p className="text-danger">This field is required</p>
-              )}
+              <p className="text-danger">{errors.email?.message}</p>
             </div>
             <div className="form-group mb-2">
               <input
@@ -81,11 +81,9 @@ function Register() {
                 name="password"
                 type="password"
                 placeholder="Enter password"
-                {...register("password", { required: true })}
+                {...register("password", { required: "Password is required" })}
               />
-              {errors.password?.type === "required" && (
-                <p className="text-danger">This field is required</p>
-              )}
+              <p className="text-danger">{errors.password?.message}</p>
             </div>
             <div className="form-group mb-2">
               <input
@@ -93,11 +91,11 @@ function Register() {
                 name="confirmPassword"
                 type="password"
                 placeholder="Enter password again"
-                {...register("confirmPassword", { required: true })}
+                {...register("confirmPassword", {
+                  required: "Password is required",
+                })}
               />
-              {errors.confirmPassword?.type === "required" && (
-                <p className="text-danger">This field is required</p>
-              )}
+              <p className="text-danger">{errors.confirmPassword?.message}</p>
             </div>
             <Button variant="success" type="submit">
               REGISTER
