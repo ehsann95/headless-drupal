@@ -99,7 +99,6 @@ export const userLogin = (config = {}) => {
           console.log("Error refreshing token", data);
           return false;
         }
-        console.log("NEW TOKEN using refresh_token", data);
         return saveToken(data);
       })
       .catch((err) => {
@@ -206,7 +205,6 @@ axiosInstance.interceptors.response.use(
         ).refresh_token;
         const getToken = userLogin();
         const newToken = await getToken.refreshToken(refreshToken);
-        console.log("NEW", newToken);
         if (newToken) {
           originalRequest.headers.Authorization = `Bearer ${newToken.access_token}`;
           return axiosInstance(originalRequest);

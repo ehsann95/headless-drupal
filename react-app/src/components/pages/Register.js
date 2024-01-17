@@ -1,29 +1,22 @@
 import React, { useState } from "react";
 import axios from "axios";
 import { NavLink, Navigate } from "react-router-dom";
-import Input from "../atoms/Input";
 import Button from "react-bootstrap/esm/Button";
+import { useForm } from "react-hook-form";
 
 function Register() {
-  const defaultValues = {
-    name: "",
-    email: "",
-    password: "",
-    confirmPassword: "",
-  };
-  const [form, setForm] = useState(defaultValues);
+  const {
+    register,
+    handleSubmit,
+    formState: { errors },
+  } = useForm();
+
   const [success, setSuccess] = useState(false);
-  const [error, setError] = useState("");
+  const [apiError, setApiError] = useState("");
 
-  const handleChange = (e) => {
-    setForm({ ...form, [e.target.name]: e.target.value });
-  };
-
-  const handleSubmit = async (e) => {
-    e.preventDefault();
-
+  const onSubmit = async (form) => {
     if (form.password !== form.confirmPassword) {
-      setError("Password did not match");
+      setApiError("Password did not match");
       return;
     }
 
@@ -36,13 +29,16 @@ function Register() {
           pass: [{ value: form.password }],
         }
       );
-      setSuccess(true);
-      console.log(result);
+      if (result.status === 200) {
+        console.log(result);
+        setSuccess(true);
+      }
     } catch (err) {
-      setError(err.response?.data?.message);
+      setApiError(err.response?.data?.message);
       console.log(err);
     }
   };
+
   return (
     <>
       {success && <Navigate to="/user/login" replace={true} />}
@@ -51,51 +47,63 @@ function Register() {
         <div className="col">
           <form
             className="col-md-6 offset-md-3 text-center"
-            onSubmit={handleSubmit}
+            onSubmit={handleSubmit(onSubmit)}
           >
             <div className="form-group mb-2">
-              <Input
+              <input
+                className="form-control"
                 name="name"
                 type="text"
-                value={form.name}
                 placeholder="Enter username"
-                handleChange={handleChange}
+                {...register("name", {
+                  required: "Username is required",
+                  maxLength: {
+                    value: 6,
+                    message: "Username cannot be more than 6 char long",
+                  },
+                })}
               />
+              <p className="text-danger">{errors.name?.message}</p>
             </div>
             <div className="form-group mb-2">
-              <Input
+              <input
+                className="form-control"
                 name="email"
                 type="email"
-                value={form.email}
                 placeholder="Enter email"
-                handleChange={handleChange}
+                {...register("email", { required: "This Email is required." })}
               />
+              <p className="text-danger">{errors.email?.message}</p>
             </div>
             <div className="form-group mb-2">
-              <Input
+              <input
+                className="form-control"
                 name="password"
                 type="password"
-                value={form.password}
                 placeholder="Enter password"
-                handleChange={handleChange}
+                {...register("password", { required: "Password is required" })}
               />
+              <p className="text-danger">{errors.password?.message}</p>
             </div>
             <div className="form-group mb-2">
-              <Input
+              <input
+                className="form-control"
                 name="confirmPassword"
                 type="password"
-                value={form.confirmPassword}
                 placeholder="Enter password again"
-                handleChange={handleChange}
+                {...register("confirmPassword", {
+                  required: "Password is required",
+                })}
               />
+              <p className="text-danger">{errors.confirmPassword?.message}</p>
             </div>
             <Button variant="success" type="submit">
               REGISTER
             </Button>
 
             <div className="form-group messages">
-              {/* <p className="success">{success}</p> */}
-              <p className="error">{error}</p>
+              <p className="success">{success}</p>
+              <p className="error">{apiError}</p>
             </div>
             <NavLink to="/user/login">Already have an account?</NavLink>
           </form>

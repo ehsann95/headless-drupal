@@ -1,15 +1,19 @@
 import React, { useState, useEffect } from "react";
 import { NavLink, Navigate } from "react-router-dom";
-import axios from "axios";
 import Input from "../atoms/Input";
 import Button from "react-bootstrap/esm/Button";
+import { useForm } from "react-hook-form";
 import { userLogin } from "../../utils/auth";
 
 const auth = userLogin();
 
 function Login({ setUsername }) {
-  const defaultFormState = { name: "", password: "" };
-  const [form, setForm] = useState(defaultFormState);
+  const {
+    register,
+    handleSubmit,
+    formState: { errors },
+  } = useForm();
+
   const [success, setSuccess] = useState(false);
   const [errorStatus, setErrorStatus] = useState("");
   const [isLoggedIn, setLoggedIn] = useState(false);
@@ -25,15 +29,9 @@ function Login({ setUsername }) {
       });
   }, []);
 
-  const handleChange = (e) => {
-    setForm({ ...form, [e.target.name]: e.target.value });
-  };
-
-  const handleSubmit = async (e) => {
-    e.preventDefault();
-
+  const onSubmit = async (form) => {
     auth
-      .login(form.name, form.password)
+      .login(form.username, form.password)
       .then(() => {
         setSuccess(true);
         setUsername(localStorage.getItem("username"));
@@ -46,29 +44,42 @@ function Login({ setUsername }) {
   return (
     <>
       {success && <Navigate to="/" replace={true} />}
+      {isLoggedIn && <h2>You're already logged in</h2>}
       <div className="row top-buffer">
         <div className="col">
           <form
             className="col-md-6 offset-md-3 text-center"
-            onSubmit={handleSubmit}
+            onSubmit={handleSubmit(onSubmit)}
           >
             <div className="form-group">
-              <Input
+              <input
                 name="name"
+                className="form-control"
                 type="text"
-                value={form.name}
                 placeholder="Enter username"
-                handleChange={handleChange}
+                {...register("username", { required: "Username is required." })}
               />
+              <span className="text-danger small">
+                {errors.username?.message}
+              </span>
             </div>
             <div className="form-group top-buffer mb-2">
-              <Input
+              <input
                 name="password"
+                className="form-control"
                 type="password"
-                value={form.password}
                 placeholder="Enter password"
-                handleChange={handleChange}
+                {...register("password", {
+                  required: "Password is required.",
+                  minLength: {
+                    value: 4,
+                    message: "Password must be minimun 4 char long.",
+                  },
+                })}
               />
+              <span className="text-danger small">
+                {errors.password?.message}
+              </span>
             </div>
             <Button type="submit">LOGIN</Button>
 
