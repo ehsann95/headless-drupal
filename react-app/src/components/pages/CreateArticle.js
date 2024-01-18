@@ -1,17 +1,23 @@
 import React, { useState } from "react";
-import axios from "axios";
 import { Link } from "react-router-dom";
 import Button from "react-bootstrap/esm/Button";
-import Input from "../atoms/Input";
+import { useForm } from "react-hook-form";
 import { userLogin } from "../../utils/auth";
 
 const auth = userLogin();
 
 function CreateArticle() {
-  const defaultValues = {
-    title: "",
-    body: "",
-  };
+  const {
+    register,
+    handleSubmit,
+    reset,
+    formState: { errors },
+  } = useForm({
+    defaultValues: {
+      title: "",
+      body: "",
+    },
+  });
 
   const [isSubmitting, setSubmitting] = useState(false);
 
@@ -21,15 +27,7 @@ function CreateArticle() {
     message: "",
   });
 
-  const [values, setValues] = useState(defaultValues);
-
-  const handleInputChange = (event) => {
-    const { name, value } = event.target;
-    setValues({ ...values, [name]: value });
-  };
-
-  const handleSubmit = async (event) => {
-    event.preventDefault();
+  const onSubmit = async (form) => {
     setSubmitting(true);
 
     const fetchUrl = `jsonapi/node/article`;
@@ -38,9 +36,9 @@ function CreateArticle() {
       data: {
         type: "node--article",
         attributes: {
-          title: `${values.title}`,
+          title: `${form.title}`,
           body: {
-            value: `${values.body}`,
+            value: `${form.body}`,
             format: "plain_text",
           },
         },
@@ -60,8 +58,8 @@ function CreateArticle() {
       const data = response.data;
 
       setSubmitting(false);
-      setValues(defaultValues);
-
+      // Clears form
+      reset();
       if (data.data.id) {
         setResult({
           success: true,
@@ -94,28 +92,28 @@ function CreateArticle() {
         )}
         <form
           className="col-md-6 offset-md-3 text-center"
-          onSubmit={handleSubmit}
+          onSubmit={handleSubmit(onSubmit)}
         >
           <div className="form-group mb-2">
-            <Input
+            <input
               name="title"
+              className="form-control"
               type="text"
-              value={values.title}
               placeholder="Title"
-              handleChange={handleInputChange}
-              required
+              {...register("title", { required: "Title field is required" })}
             />
+            <span className="text-danger small">{errors.title?.message}</span>
           </div>
           <div className="form-group mb-2">
             <textarea
               name="body"
               rows="4"
               cols="30"
-              value={values.body}
               placeholder="Body"
-              onChange={handleInputChange}
               className="form-control"
+              {...register("body", { required: "Body field is required" })}
             />
+            <span className="text-danger small">{errors.body?.message}</span>
           </div>
           <div className="form-group mb-2">
             <Button type="submit">Add new Article</Button>
