@@ -20,12 +20,9 @@ function DeleteArticle({ id, title }) {
   const handleShow = () => setShow(true);
 
   const handleDelete = async () => {
-    let token = localStorage.getItem("access_token");
-
     const fetchUrl = `jsonapi/node/article/${id}`;
     const fetchOptions = {
       method: "DELETE",
-      // headers: new Headers({}),
     };
 
     try {
