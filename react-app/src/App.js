@@ -20,7 +20,7 @@ function App() {
     <BrowserRouter>
       <div className="container">
         <Header username={username} />
-        <Slider />
+        {/* <Slider /> */}
 
         <Routes>
           <Route path="/" element={<Home />} />

@@ -34,11 +34,11 @@ function Articles() {
       <div className="d-sm-block d-md-flex flex-wrap gap-3 mt-3">
         {articles.map((item) => (
           <Link
-            className="width-30 text-decoration-none"
+            className="width-30 text-decoration-none d-flex"
             to={`edit/${item.id}`}
             key={item.id}
           >
-            <Card className="my-3 ">
+            <Card className="my-3 d-flex w-100">
               <Card.Header as="h5">{item.attributes?.title}</Card.Header>
               <Card.Body>
                 <Card.Text

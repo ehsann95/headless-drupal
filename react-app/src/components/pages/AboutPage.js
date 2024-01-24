@@ -1,6 +1,7 @@
 import React, { useEffect, useState } from "react";
 import Card from "react-bootstrap/Card";
 import axios from "axios";
+import Slider from "../organisms/Slider";
 
 function AboutPage() {
   const [page, setPage] = useState({});
@@ -22,16 +23,19 @@ function AboutPage() {
   }, []);
 
   return (
-    <div className="row top-buffer">
-      <div className="col">
-        <Card className="text-center">
-          <Card.Header>{page?.attributes?.title}</Card.Header>
-          <Card.Body
-            dangerouslySetInnerHTML={{ __html: page?.attributes?.body.value }}
-          ></Card.Body>
-        </Card>
+    <>
+      <Slider />
+      <div className="row top-buffer">
+        <div className="col">
+          <Card className="text-center">
+            <Card.Header>{page?.attributes?.title}</Card.Header>
+            <Card.Body
+              dangerouslySetInnerHTML={{ __html: page?.attributes?.body.value }}
+            ></Card.Body>
+          </Card>
+        </div>
       </div>
-    </div>
+    </>
   );
 }
 
