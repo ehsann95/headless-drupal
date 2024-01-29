@@ -12,6 +12,7 @@ import Logout from "./components/organisms/Logout";
 import CreateArticle from "./components/pages/CreateArticle";
 import EditArticle from "./components/pages/EditArticle";
 import Profile from "./components/pages/Profile";
+import Movies from "./components/pages/Movies";
 
 function App() {
   const [username, setUsername] = useState(localStorage.getItem("username"));
@@ -24,6 +25,7 @@ function App() {
 
         <Routes>
           <Route path="/" element={<Home />} />
+          <Route path="/movies/*" element={<Movies />} />
           <Route path="/about" element={<AboutPage />} />
           <Route path="/articles" element={<Articles />} />
           <Route path="/articles/new" element={<CreateArticle />} />
