@@ -6,25 +6,28 @@ import { NavLink, useParams } from "react-router-dom";
 const Movies = () => {
   const [movies, setMovies] = useState([]);
   const [keyword, setKeyword] = useState("");
-  const [title, setTitle] = useState("");
-  const [body, setBody] = useState("");
+  const [movie, setMovie] = useState({
+    title: "",
+    body: "",
+    actor: [],
+  });
   const [loading, setLoading] = useState(false);
 
   const { movieID } = useParams();
+  console.log(movieID);
 
   useEffect(() => {
     fetchMovieTitles();
     fetchMovie();
-    // renderMoviesTitle();
   }, []);
 
   const fetchMovieTitles = async () => {
-    console.log("FETCH MOVIES TITLES");
     setLoading(true);
     try {
       const res = await axios.get(
-        "http://decouple-drupal.ddev.site/jsonapi/node/movie?fields[node--movie]=title"
+        `${process.env.REACT_APP_BASE_URL}jsonapi/node/movie?fields[node--movie]=title`
       );
+
       const data = await res.data.data;
       setMovies(data);
       setLoading(false);
@@ -35,23 +38,31 @@ const Movies = () => {
   };
 
   const fetchMovie = async (nid) => {
-    console.log("FETCH MOVIE");
-
+    // console.log(mid);
     var id;
     if (nid !== undefined) {
       id = nid;
+      console.log("ID");
     } else if (movieID !== undefined) {
+      console.log("params");
+
       id = movieID;
     } else {
+      console.log("default");
+
       id = "7b2c706b-11cf-4f66-8998-b0d2d2c0f7dd";
     }
     const res = await axios.get(
-      "http://decouple-drupal.ddev.site/jsonapi/node/movie/" + id
+      `${process.env.REACT_APP_BASE_URL}jsonapi/node/movie/${id}?include=field_actors`
     );
     const data = res.data.data;
+    const actorsData = await res.data.included;
 
-    setTitle(data.attributes.title);
-    setBody(data.attributes?.body?.value);
+    setMovie({
+      title: data.attributes.title,
+      body: data.attributes?.body?.value,
+      actor: actorsData.map((item) => item.attributes.title),
+    });
   };
 
   const updateSearchKeyword = (event) => {
@@ -98,21 +109,26 @@ const Movies = () => {
                   </NavLink>
                 );
               }
+              return;
             })}
           </div>
           <br />
         </div>
         <div className="col-md-8">
-          {loading && <div>Loading...</div>}
           <div className="card text-center">
-            <div className="card-header">{title}</div>
+            <div className="card-header">{movie.title}</div>
             <div
               className="card-block"
-              dangerouslySetInnerHTML={{ __html: body }}
+              dangerouslySetInnerHTML={{ __html: movie.body }}
             />
             <div className="card-footer text-muted text-left">
               <em>
-                <small>Actor Ahsan.</small>
+                <small>
+                  Actor(s):{" "}
+                  {movie.actor.map((actor) => (
+                    <span className="me-1">{actor} </span>
+                  ))}
+                </small>
               </em>
             </div>
           </div>
