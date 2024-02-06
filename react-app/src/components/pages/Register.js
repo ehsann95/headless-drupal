@@ -30,7 +30,6 @@ function Register() {
         }
       );
       if (result.status === 200) {
-        console.log(result);
         setSuccess(true);
       }
     } catch (err) {
