@@ -3,7 +3,7 @@ import axios from "axios";
 
 import { NavLink, useParams } from "react-router-dom";
 
-const Movies = () => {
+const Movies = (props) => {
   const [movies, setMovies] = useState([]);
   const [keyword, setKeyword] = useState("");
   const [movie, setMovie] = useState({
@@ -14,7 +14,6 @@ const Movies = () => {
   const [loading, setLoading] = useState(false);
 
   const { movieID } = useParams();
-  console.log(movieID);
 
   useEffect(() => {
     fetchMovieTitles();
@@ -38,18 +37,12 @@ const Movies = () => {
   };
 
   const fetchMovie = async (nid) => {
-    // console.log(mid);
     var id;
     if (nid !== undefined) {
       id = nid;
-      console.log("ID");
     } else if (movieID !== undefined) {
-      console.log("params");
-
       id = movieID;
     } else {
-      console.log("default");
-
       id = "7b2c706b-11cf-4f66-8998-b0d2d2c0f7dd";
     }
     const res = await axios.get(
@@ -109,7 +102,6 @@ const Movies = () => {
                   </NavLink>
                 );
               }
-              return;
             })}
           </div>
           <br />
@@ -125,8 +117,10 @@ const Movies = () => {
               <em>
                 <small>
                   Actor(s):{" "}
-                  {movie.actor.map((actor) => (
-                    <span className="me-1">{actor} </span>
+                  {movie.actor.map((actor, i) => (
+                    <span key={`${actor}${i}`} className="me-1">
+                      {actor}{" "}
+                    </span>
                   ))}
                 </small>
               </em>
